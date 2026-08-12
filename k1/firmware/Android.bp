@@ -14,11 +14,38 @@ prebuilt_firmware {
     src: "powervr/rgx.sh.36.29.52.182",
 }
 
-// WiFi RTL8852BS firmware
+// WiFi RTL8852BS firmware. All three variants come from the vendor K3 BSP
+// target_overlay and are byte-identical (md5) to what Bianbu runs.
+//
+// rtw89 asks newest-format-first: RTW8852B_FW_FORMAT_MAX is 2, so it tries
+// rtw8852b_fw-2.bin, then -1.bin, then the unsuffixed file. Which files are
+// INSTALLED therefore decides which firmware runs -- see the PRODUCT_PACKAGES
+// lists in k1.mk / k3.mk, which deliberately ship -1 but not -2. Declaring a
+// module here only makes it available; it installs nothing on its own.
+//
+// Why it matters: with only the unsuffixed file the driver pins the oldest
+// firmware; with -2 present it picks 0.29.128.0. In both cases the card probes,
+// registers a phy and a netdev with a real MAC, accepts NL80211_CMD_TRIGGER_SCAN,
+// completes the scan -- and reports zero networks, with no error logged anywhere.
+// Bianbu runs -1.bin (0.29.29.15) on this same board and scans fine.
 prebuilt_firmware {
     name: "rtw8852b_fw.bin",
     vendor: true,
     src: "rtw89/rtw8852b_fw.bin",
+    sub_dir: "rtw89",
+}
+
+prebuilt_firmware {
+    name: "rtw8852b_fw-1.bin",
+    vendor: true,
+    src: "rtw89/rtw8852b_fw-1.bin",
+    sub_dir: "rtw89",
+}
+
+prebuilt_firmware {
+    name: "rtw8852b_fw-2.bin",
+    vendor: true,
+    src: "rtw89/rtw8852b_fw-2.bin",
     sub_dir: "rtw89",
 }
 
